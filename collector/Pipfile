@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+scrapy = "==2.5.0"
+pymongo = {extras = ["srv"], version = "*"}
+scrapy-selenium = "*"
+dnspython = "*"
+python-dotenv = "*"
+pymysql = "*"
+webdriver-manager = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
