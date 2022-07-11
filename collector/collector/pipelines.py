@@ -13,18 +13,14 @@ from collector.settings import MONGODBCONNECTIONSTRING
 class CollectorPipeline:
 
     def open_spider(self, spider):
-        self.connect = MongoClient(MONGODBCONNECTIONSTRING)
+        self.connect = MongoClient(MONGODBCONNECTIONSTRING, connect=False)
 
     def process_item(self, item, spider):
         db = self.connect["ytChannel"]
         collection = db["videos"]
-        """
-        doc_count = collection.count_documents({})
-        print(doc_count)
-        """
 
         newData = {
-            "_id": item["videoID"],
+            "videoID": item["videoID"],
             "videoTitle": item["videoTitle"],
             "videoLink": item["videoLink"],
             "videoImage": item["videoImage"],
@@ -34,15 +30,15 @@ class CollectorPipeline:
             "videoUploadedTime": item["videoUploadedTime"]
         }
         if collection.find_one({"videoChannelName": item["videoChannelName"]}) == None:
-            if collection.find_one({"_id": item["videoID"]}):
-                print("Duplicate key")
+            if collection.find_one({"videoID": item["videoID"]}):
+                print("Duplicate video")
                 return
             print("Insert NewData")
             collection.insert_one(newData)
-        elif collection.find_one({"_id": {"$ne": item["videoID"]}}):
+        elif collection.find_one({"$and": [{"videoChannelName": item["videoChannelName"]}, {"videoID": {"$ne": item["videoID"]}}]}):
             print("Update Data")
             collection.update_one(
-                {"videoChannelName": item["videoChannelName"]}, {"$set": {newData}})
+                {"videoChannelName": item["videoChannelName"]}, {"$set": newData})
 
     def close_spider(self, spider):
         self.connect.close()

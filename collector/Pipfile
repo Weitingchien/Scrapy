@@ -11,6 +11,7 @@ dnspython = "*"
 python-dotenv = "*"
 pymysql = "*"
 webdriver-manager = "*"
+shub = "*"
 
 [dev-packages]
 

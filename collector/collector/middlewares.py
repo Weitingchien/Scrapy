@@ -2,13 +2,29 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-
-from scrapy import signals
 import random
-from collector.settings import USERAGENT
+import pymysql
+from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+
+from collector.settings import MySQLDBConfig, USERAGENT
+
+
+class RandomProxyMiddleware:
+    def __init__(self):
+        self.db = pymysql.connect(**MySQLDBConfig)
+        self.proxyList = []
+        cursor = self.db.cursor()
+        sqlIps = "SELECT ip FROM ips"
+        ips = cursor.execute(sqlIps)
+        results = cursor.fetchall()
+        for ip in results:
+            self.proxyList.append(ip[0])
+
+    def process_request(self, request, spider):
+        request.meta["proxy"] = random.choice(self.proxyList)
 
 
 class RotateUserAgentMiddleware:
